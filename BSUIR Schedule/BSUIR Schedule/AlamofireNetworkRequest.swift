@@ -25,6 +25,7 @@ class AlamofireNetworkRequest {
                 print(error)
             }
         }
+        
     }
     
     // TODO: add sendGetRequestForJSON
