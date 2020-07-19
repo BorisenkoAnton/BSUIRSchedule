@@ -88,6 +88,7 @@
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="professorNameLabel" destination="ajy-0i-3PF" id="eV6-PD-txE"/>
                                     <outlet property="professorsPhoto" destination="6hU-GG-jQg" id="f7f-w7-lBd"/>
                                     <outlet property="subjectAuditoryLabel" destination="XDh-Gm-fhf" id="eGz-oJ-Afo"/>
                                     <outlet property="subjectNameLabel" destination="B8r-P6-yLI" id="Jk0-ht-EKj"/>

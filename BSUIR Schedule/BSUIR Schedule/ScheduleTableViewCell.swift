@@ -17,6 +17,7 @@ class ScheduleTableViewCell: UITableViewCell {
             professorsPhoto.clipsToBounds = true
         }
     }
+    @IBOutlet weak var professorNameLabel: UILabel!
     @IBOutlet weak var subjectNameLabel: UILabel!
     @IBOutlet weak var subjectTypeLabel: UILabel!
     @IBOutlet weak var subjectTimeLabel: UILabel!
