@@ -15,9 +15,18 @@ class NetworkManager {
         let url =  "https://journal.bsuir.by/api/v1/studentGroup/schedule?studentGroup=" + groupNumber
         AlamofireNetworkRequest.sendGetRequestForString(url: url) { (stringRepresentationOfSchedule) in
             if let schedule = DBmodel(jsonRepresentationOfSchedule: stringRepresentationOfSchedule, groupNumber: Int(groupNumber)!) {
-                //StorageManager.saveObject(schedule)
+                StorageManager.saveObject(schedule)
                 print(stringRepresentationOfSchedule)
             }
+        }
+    }
+    
+    static func getCurrentWeekNumber(completion: @escaping (_ currentWeekNumber: Int) -> ()) {
+        
+        let url = "https://journal.bsuir.by/api/v1/week"
+        AlamofireNetworkRequest.sendGetRequestForString(url: url) { (currentWeekNumberString) in
+            guard let currentWeekNumber = Int(currentWeekNumberString) else { return }
+            completion(currentWeekNumber)
         }
     }
 }
