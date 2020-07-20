@@ -33,7 +33,6 @@ extension LessonInfo {
                 let photoURL = URL(string: lesson.employee[0].photoLink!)!
                 if let photo = try? Data(contentsOf: photoURL) {
                     self.professorsPhoto = UIImage(data: photo as Data)
-                    print("sasdasdass8u1984hr2834rh92834hr28374hr293874hr23874hr")
                 }
             }
             
