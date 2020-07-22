@@ -11,20 +11,40 @@ import UIKit
 class NewGroupViewController: UIViewController {
 
     var groups = [Schedule.StudentGroup]()
+    var groupNumbers = [String]()
+    @IBOutlet weak var groupNumbersPickerView: UIPickerView!
+    @IBOutlet weak var groupNumberTextField: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        setupScreen()
     }
     
-
+    func loadScheduleForNewGroup(completion: @escaping (DBmodel) -> ()) {
+        
+        guard groupNumberTextField.text != "" else { return }
+        
+        if groupNumbers.contains(groupNumberTextField.text!) {
+            NetworkManager.getScheduleForGroup(groupNumberTextField.text!) { (schedule) in
+                completion(schedule)
+            }
+        } else {
+            // TODO: add alert
+        }
+    }
     
-// MARK: - Navigation
-    
-    
-    @IBAction func cancelAction(_ sender: Any) {
-        dismiss(animated: true)
+    private func setupScreen() {
+        
+        if !groupNumbers.isEmpty {
+            groupNumbersPickerView.reloadAllComponents()
+            for a in groupNumbers {
+                print(a)
+            }
+            
+        } else {
+            print("is empty")
+        }
     }
     
 }
@@ -58,5 +78,42 @@ extension NewGroupViewController: UITableViewDataSource {
         
         return cell
         
+    }
+}
+
+
+// MARK: - Picker View Data Source and Delegate
+
+extension NewGroupViewController: UIPickerViewDataSource {
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        groupNumbers.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return groupNumbers[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        self.groupNumberTextField.text = self.groupNumbers[row]
+    }
+}
+
+extension NewGroupViewController: UIPickerViewDelegate {}
+
+
+
+extension NewGroupViewController: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        let set = NSCharacterSet(charactersIn: "0123456789").inverted
+        let compSepByCharInSet = string.components(separatedBy: set)
+        let numberFiltered = compSepByCharInSet.joined(separator: "")
+        return string == numberFiltered
     }
 }
