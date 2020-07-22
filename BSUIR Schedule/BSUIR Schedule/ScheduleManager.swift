@@ -19,7 +19,7 @@ class ScheduleManager {
         switch weekday {
         case 1:
             // weekday == 1 means that it is sunday
-            weekday = 0
+            weekday = 6
         default:
             // need to substract 2 because in Calendar week starts from Sunday and with index 1
             weekday -= 2
@@ -30,6 +30,8 @@ class ScheduleManager {
     }
     
     static func getCurrentDaySchedule(weekNumber: Int, weekDay: Int, schedule: Schedule) -> [LessonInfo] {
+        
+        guard weekDay != 6 else { return [] }
         
         let fullSchedeule = schedule.schedules[weekDay]
         var lessonInfoArray = [LessonInfo]()
