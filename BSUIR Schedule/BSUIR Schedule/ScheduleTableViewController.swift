@@ -16,14 +16,16 @@ class ScheduleTableViewController: UITableViewController {
     private var schedules = [Schedule]()
     private var currentWeekNumber = 1
     private var currentWeekDay = 0
+    private var currentScedule: Schedule?
     private var lessons = [LessonInfo]()
+    private var groupNumbers = [String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        addSwipeGestureRecognizers()
         NetworkManager.getCurrentWeekNumber() { (response) in
             self.currentWeekNumber = response
-        
+            print(response)
             self.currentWeekDay = ScheduleManager.getCurrentWeekDay()
             
             self.savedSchedules = realm.objects(DBmodel.self)
@@ -38,9 +40,19 @@ class ScheduleTableViewController: UITableViewController {
                 }
             }
             
-            self.lessons = ScheduleManager.getCurrentDaySchedule(weekNumber: self.currentWeekNumber, weekDay: self.currentWeekDay, schedule: self.schedules[0])
-            
-            self.tableView.reloadData()
+            if !self.schedules.isEmpty {
+                
+                self.currentScedule = self.schedules[0]
+                
+                self.lessons = ScheduleManager.getCurrentDaySchedule(weekNumber: self.currentWeekNumber, weekDay: self.currentWeekDay, schedule: self.currentScedule!)
+                
+                self.tableView.reloadData()
+            }
+        }
+        
+        NetworkManager.getAllGroupNumbers() { (groupNumbers) in
+
+            self.groupNumbers = groupNumbers
         }
         
     }
@@ -88,9 +100,89 @@ class ScheduleTableViewController: UITableViewController {
             for schedule in schedules {
                 newGroupVC.groups.append(schedule.studentGroup)
             }
-            
+            newGroupVC.groupNumbers = groupNumbers
         }
         
     }
+    
+    @IBAction func unwindSegue(_ segue: UIStoryboardSegue) {
 
+        guard let newGroupVC = segue.source as? NewGroupViewController else { return }
+        
+        newGroupVC.loadScheduleForNewGroup() { (schedule) in
+            let json = Data(schedule.jsonRepresentationOfSchedule.utf8)
+            do {
+                let newSchedule = try JSONDecoder().decode(Schedule.self, from: json)
+                self.schedules.append(newSchedule)
+                self.currentScedule = newSchedule
+                self.lessons = ScheduleManager.getCurrentDaySchedule(weekNumber: self.currentWeekNumber, weekDay: self.currentWeekDay, schedule: self.currentScedule!)
+                self.tableView.reloadData()
+            } catch {
+                print(error)
+            }
+            
+        }
+        
+        tableView.reloadData()
+    }
+    
+    // MARK: - Gesture Recognizing
+    
+    func addSwipeGestureRecognizers() {
+        
+        let rightGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
+        rightGestureRecognizer.direction = .right
+        self.view.addGestureRecognizer(rightGestureRecognizer)
+        
+        let leftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe))
+        leftGestureRecognizer.direction = .left
+        self.view.addGestureRecognizer(leftGestureRecognizer)
+    }
+
+    @objc func handleSwipe(gesture: UIGestureRecognizer) {
+        
+        if let gesture = gesture as? UISwipeGestureRecognizer {
+            
+            switch gesture.direction {
+            case .right:
+                guard self.currentScedule != nil else { return }
+                
+                changeCurrentWeekDay(increase: false)
+                self.lessons = ScheduleManager.getCurrentDaySchedule(weekNumber: self.currentWeekNumber, weekDay: self.currentWeekDay, schedule: self.currentScedule!)
+                self.tableView.reloadData()
+            case .left:
+                guard self.currentScedule != nil else { return }
+                
+                changeCurrentWeekDay(increase: true)
+                self.lessons = ScheduleManager.getCurrentDaySchedule(weekNumber: self.currentWeekNumber, weekDay: self.currentWeekDay, schedule: self.currentScedule!)
+                self.tableView.reloadData()
+            default:
+                break
+            }
+        }
+    }
+    
+    func changeCurrentWeekDay(increase: Bool) {
+        
+        if increase {
+            self.currentWeekDay += 1
+            if self.currentWeekDay > 6 {
+                self.currentWeekNumber += 1
+                self.currentWeekDay = 0
+                if self.currentWeekNumber > 4 {
+                    self.currentWeekNumber = 1
+                }
+            }
+        } else {
+            self.currentWeekDay -= 1
+            if self.currentWeekDay < 0 {
+                self.currentWeekNumber -= 1
+                self.currentWeekDay = 6
+                if self.currentWeekNumber < 1 {
+                    self.currentWeekNumber = 4
+                }
+            }
+        }
+    }
+    
 }
