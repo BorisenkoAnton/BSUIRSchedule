@@ -10,7 +10,7 @@ Some technologies, collections and frameworks, using in project:
 * [BSUIR API](https://iis.bsuir.by/api/rules)
 * Alamofire
 * Realm
-* UIPickerView, UITextField, UIImageView, UILabel, UINavigationController, etc., constraints
+* UITableView, UIStackView, UIPickerView, UITextField, UIImageView, UILabel, UINavigationController, etc., constraints
 * JSONDecoder
 * Date, Calendar
 * Arrays, Set
